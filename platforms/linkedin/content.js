@@ -14,45 +14,21 @@ const buttonStyles = (button) => {
   button.style.fontWeight = '600';
   button.style.cursor = 'pointer';
   button.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
+  button.style.display = 'block';
 };
 
 const getCommentBoxes = () => {
-  const selectors = [
-    '.comments-comment-box-comment__text-editor .ql-editor[contenteditable="true"]',
-    '.comments-comment-box-comment__text-editor [data-placeholder]',
-    '.ql-editor[contenteditable="true"]',
-    '[data-placeholder]'
-  ];
-  return Array.from(document.querySelectorAll(selectors.join(','))).filter((el) => {
-    return Boolean(
-      el.closest('.comments-comment-box-comment__text-editor') ||
-      el.closest('.comments-comment-item')
-    );
-  });
+  return Array.from(
+    document.querySelectorAll('.tiptap.ProseMirror[contenteditable="true"]')
+  );
 };
 
 const getPostText = (commentBox) => {
-  const post =
-    commentBox.closest('.feed-shared-update-v2') ||
-    commentBox.closest('.feed-shared-update-v2__container') ||
-    commentBox.closest('.feed-shared-inline-show-more-text')?.closest('.feed-shared-update-v2');
+  const listItem = commentBox.closest('[role="listitem"]');
+  if (!listItem) return '';
 
-  if (!post) return '';
-
-  const selectors = [
-    '.feed-shared-update-v2__description',
-    '.feed-shared-inline-show-more-text',
-    '.update-components-text',
-    '[data-test-id="main-feed-activity-card__commentary"]'
-  ];
-
-  for (const selector of selectors) {
-    const node = post.querySelector(selector);
-    const text = node?.innerText?.trim();
-    if (text) return text;
-  }
-
-  return post.innerText?.trim() || '';
+  const textBox = listItem.querySelector('[data-testid="expandable-text-box"]');
+  return textBox?.innerText?.trim() || '';
 };
 
 const setCommentText = (commentBox, text) => {
@@ -102,11 +78,13 @@ const injectButton = (commentBox) => {
     });
   });
 
-  const container = commentBox.closest('.comments-comment-box-comment__text-editor') || commentBox.parentElement;
-  if (!container) return;
+  // Insert after the tiptap wrapper div
+  const wrapper = commentBox.closest('[data-testid="ui-core-tiptap-text-editor-wrapper"]');
+  const anchor = wrapper || commentBox.parentElement;
+  if (!anchor) return;
 
-  if (!container.querySelector(`[${AI_BUTTON_ATTR}="${AI_PLATFORM}"]`)) {
-    container.insertAdjacentElement('afterend', button);
+  if (!anchor.parentElement?.querySelector(`[${AI_BUTTON_ATTR}="${AI_PLATFORM}"]`)) {
+    anchor.insertAdjacentElement('afterend', button);
   }
 };
 
