@@ -83,7 +83,7 @@ const injectButton = (commentBox) => {
 
   const container = commentBox.parentElement || commentBox;
   if (!container.querySelector(`[${AI_BUTTON_ATTR}="${AI_PLATFORM}"]`)) {
-    container.insertAdjacentElement('afterend', button);
+    commentBox.insertAdjacentElement('afterend', button);
   }
 };
 
